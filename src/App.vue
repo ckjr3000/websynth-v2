@@ -5,24 +5,37 @@
       <option value="white noise">white noise</option>
   </select>
   <button @click="handleAddSoundSrc">add</button>
+  <div id="channels">
+    <Channel 
+      v-for="(source, index) in soundSrcs" 
+      :key="index" 
+      :type="source.type" 
+    />
+  </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
+import Channel from './components/Channel.vue';
+
+interface SoundSrc {
+  type: string;
+}
 
 export default defineComponent({
   name: 'App',
   components: {
-    
+    Channel
   },
   data(){
     return {
+      ctx: new AudioContext(),
       newSoundSrcType: "oscillator",
+      soundSrcs: [] as SoundSrc[],
     }
   },
   methods: {
     updateSrcType(e: Event): void{
-      // Type assertion and null check for target
       const selectElement = e.target as HTMLSelectElement | null;
 
       if (selectElement) {
@@ -32,7 +45,11 @@ export default defineComponent({
       }
     },
     handleAddSoundSrc(): void{
-      console.log(this.newSoundSrcType);
+      if(this.newSoundSrcType === "oscillator"){
+        this.soundSrcs.push({ type: "oscillator" });
+      } else if (this.newSoundSrcType === "white noise"){
+        this.soundSrcs.push({ type: "white noise" });
+      }
     },
   }
 });
