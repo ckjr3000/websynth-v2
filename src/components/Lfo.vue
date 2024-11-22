@@ -3,7 +3,7 @@
   <button id="unmute-btn" @click="handleUnMute">Unmute</button>
   <div class="gain">
     <label for="gain">Gain</label>
-    <input name="gain" id="gain-ctrl" type="range" min="0" max="1" step="0.01" @input="handleGainChange">
+    <input name="gain" id="gain-ctrl" type="range" min="0" max="1" step="any" @input="handleGainChange">
   </div>
   <div class="frequency">
     <label for="frequency">Frequency:</label>
@@ -12,7 +12,7 @@
 </template>
 
 <script>
-import { createOscillator, unMute, mute } from '../utils/oscillatorUtils.js';
+import { createOscillator, mute, changeGain, changeFreq } from '../utils/oscillatorUtils.js';
 
 export default {
     props: {
@@ -45,8 +45,9 @@ export default {
     },
     methods: {
         handleUnMute(){
-            this.muted = true;
-            
+            this.muted = false;
+            const muted = this.muted;
+
             const muteBtn = document.getElementById('mute-btn');
             muteBtn.classList.remove('hidden');
 
@@ -57,10 +58,10 @@ export default {
             const gainCtrl = document.getElementById('gain-ctrl');
             const gainVal = parseFloat(gainCtrl.value);
 
-            unMute(ctx, gainVal);
+            changeGain(ctx, gainVal, muted);
         },
         handleMute(){
-            this.muted = false;
+            this.muted = true;
 
             const muteBtn = document.getElementById('mute-btn');
             muteBtn.classList.add('hidden');
@@ -71,8 +72,17 @@ export default {
             const ctx = this.audioContext;
             mute(ctx);
         },
-        handleGainChange(){},
-        handleFreqChange(){},
+        handleGainChange(e){
+            const ctx = this.audioContext;
+            const gainVal = e.target.value;
+            const muted = this.muted;
+            changeGain(ctx, gainVal, muted);
+        },
+        handleFreqChange(e){
+            const ctx = this.audioContext;
+            const freqVal = e.target.value;
+            changeFreq(ctx, freqVal);
+        },
     }
 }
 </script>
