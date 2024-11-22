@@ -1,58 +1,42 @@
 <template>
-  <label for="select-src">Add new sound source:</label>
-  <select name="select-src" value="oscillator" @change="updateSrcType">
-      <option value="oscillator">oscillator</option>
-      <option value="white noise">white noise</option>
-  </select>
-  <button @click="handleAddSoundSrc">add</button>
-  <div id="channels">
-    <Channel 
-      v-for="(source, index) in soundSrcs" 
-      :key="index" 
-      :type="source.type" 
-    />
+  <div id="add-src-btn">
+    <button v-for="src in soundSrcTypes" :key="src" @click="handleAddSoundSrc(src)">{{ src }}</button>
+  </div>
+  <div class="activeSoundSrcs">
+    <div v-for="(src) in activeSoundSrcs" :key="src">
+      <div v-if="src === 'LFO'">
+        <Lfo :audioContext="audioContext"/>
+      </div>
+      <div v-if="src !== 'LFO'">Other</div>
+    </div>
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue';
-import Channel from './components/Channel.vue';
+<script>
+import Lfo from './components/Lfo.vue'
 
-interface SoundSrc {
-  type: string;
-}
-
-export default defineComponent({
-  name: 'App',
-  components: {
-    Channel
-  },
+export default {
+  components: { Lfo },
   data(){
     return {
-      ctx: new AudioContext(),
-      newSoundSrcType: "oscillator",
-      soundSrcs: [] as SoundSrc[],
+      audioContext: new AudioContext(),
+      soundSrcTypes: ['LFO', 'MFO', 'HFO', 'Noise', 'Clicker', 'Keyboard'],
+      activeSoundSrcs: []
     }
   },
   methods: {
-    updateSrcType(e: Event): void{
-      const selectElement = e.target as HTMLSelectElement | null;
-
-      if (selectElement) {
-        this.newSoundSrcType = selectElement.value;
+    handleAddSoundSrc(src) {
+      if (this.audioContext.state === 'suspended') {
+        this.audioContext.resume().then(() => {
+          console.log('AudioContext resumed');
+          this.activeSoundSrcs.push(src);
+        }).catch(err => console.error('Error resuming AudioContext', err));
       } else {
-        console.error("No target element found for the event.");
+        this.activeSoundSrcs.push(src);
       }
-    },
-    handleAddSoundSrc(): void{
-      if(this.newSoundSrcType === "oscillator"){
-        this.soundSrcs.push({ type: "oscillator" });
-      } else if (this.newSoundSrcType === "white noise"){
-        this.soundSrcs.push({ type: "white noise" });
-      }
-    },
+    }
   }
-});
+}
 </script>
 
 <style>
