@@ -4,19 +4,21 @@
   </div>
   <div class="activeSoundSrcs">
     <div v-for="(src) in activeSoundSrcs" :key="src">
-      <div v-if="src === 'LFO'">
-        <Lfo :audioContext="audioContext"/>
+      <div v-if="src === 'LFO' || src === 'MFO' || src === 'HFO'">
+        <Osc :audioContext="audioContext" :type="src"/>
       </div>
-      <div v-if="src !== 'LFO'">Other</div>
+      <div v-if="src === 'Noise'">Noise</div>
+      <div v-if="src === 'Clicker'">Clicker</div>
+      <div v-if="src === 'Keyboard'">Keyboard</div>
     </div>
   </div>
 </template>
 
 <script>
-import Lfo from './components/Lfo.vue'
+import Osc from './components/Osc.vue'
 
 export default {
-  components: { Lfo },
+  components: { Osc },
   data(){
     return {
       audioContext: new AudioContext(),
@@ -28,7 +30,6 @@ export default {
     handleAddSoundSrc(src) {
       if (this.audioContext.state === 'suspended') {
         this.audioContext.resume().then(() => {
-          console.log('AudioContext resumed');
           this.activeSoundSrcs.push(src);
         }).catch(err => console.error('Error resuming AudioContext', err));
       } else {

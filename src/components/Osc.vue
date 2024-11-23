@@ -1,5 +1,6 @@
 <template>
-  <button id="mute-btn" @click="handleMute">Mute</button>
+  <h2>{{ type }}</h2> 
+  <button class="hidden" id="mute-btn" @click="handleMute">Mute</button>
   <button id="unmute-btn" @click="handleUnMute">Unmute</button>
   <div class="gain">
     <label for="gain">Gain</label>
@@ -7,7 +8,9 @@
   </div>
   <div class="frequency">
     <label for="frequency">Frequency:</label>
-    <input name="frequency" id="freq-ctrl" type="range" min="45" max="100" step="0.01" @input="handleFreqChange">
+    <input v-if="type === 'LFO'" name="frequency" id="freq-ctrl" type="range" min="45" max="120" step="0.01" @input="handleFreqChange">
+    <input v-if="type === 'MFO'" name="frequency" id="freq-ctrl" type="range" min="121" max="1400" step="0.01" @input="handleFreqChange">
+    <input v-if="type === 'HFO'" name="frequency" id="freq-ctrl" type="range" min="1401" max="15000" step="0.01" @input="handleFreqChange">
   </div>
 </template>
 
@@ -19,6 +22,10 @@ export default {
         audioContext: {
             type: Object,
             required: true
+        },
+        type: {
+            type: String,
+            required: true,
         }
     },
     data(){
@@ -35,8 +42,8 @@ export default {
         const gainCtrl = document.getElementById('gain-ctrl');
         const gainVal = parseFloat(gainCtrl.value);
 
-        const muteBtn = document.getElementById('mute-btn');
-        muteBtn.classList.add('hidden');
+        // const muteBtn = document.getElementById('mute-btn');
+        // muteBtn.classList.add('hidden');
 
         const { osc, gainNode } = createOscillator(ctx, freqVal, gainVal);
 
